@@ -1,0 +1,29 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Credentials and Secrets
+.env
+valid_key.txt
+
+# SQLite Database and Journals
+history.db
+history.db-journal
+
+# Temporary Uploads and Generated Resumes
+uploads/*
+!uploads/.gitkeep
+generated/*
+!generated/.gitkeep
+
+# Python Caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Operating System Files
+.DS_Store
+Thumbs.db
