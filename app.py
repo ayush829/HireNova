@@ -30,7 +30,7 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
     
-    /* 1. LOCK APPLICATION IN PREMIUM LIGHT MODE */
+    /* 1. LOCK APPLICATION IN PREMIUM SLATE LIGHT MODE */
     [data-testid="stAppViewContainer"], 
     [data-testid="stHeader"], 
     [data-testid="stApp"],
@@ -49,10 +49,9 @@ st.markdown("""
         color: #0f172a !important; /* Slate 900 Black */
     }
     
-    /* Ensure regular markdown texts are dark slate grey for excellent legibility */
+    /* Ensure regular markdown texts are dark slate grey for excellent legibility (avoiding breaking spans) */
     div[data-testid="stMarkdownContainer"] p, 
-    div[data-testid="stMarkdownContainer"] li,
-    div[data-testid="stMarkdownContainer"] span {
+    div[data-testid="stMarkdownContainer"] li {
         color: #334155 !important; /* Slate 700 */
         font-size: 0.95rem;
         line-height: 1.6;
@@ -60,16 +59,16 @@ st.markdown("""
     
     /* Header Gradient styling */
     .header-gradient {
-        background: linear-gradient(135deg, #4f46e5, #2563eb, #7c3aed);
-        -webkit-background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8, #3b82f6) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
         font-size: 3.6rem !important;
         font-weight: 800;
         margin-bottom: 0.1rem;
         font-family: 'Outfit', sans-serif;
         letter-spacing: -0.03em;
-        filter: drop-shadow(0 2px 6px rgba(37, 99, 235, 0.1));
     }
     
     .subtitle-text {
@@ -78,24 +77,6 @@ st.markdown("""
         margin-bottom: 2.2rem;
         font-weight: 400;
         letter-spacing: 0.01em;
-    }
-    
-    /* Premium Frosted Glassmorphic cards for Light Mode */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.8) !important;
-        border: 1px solid rgba(15, 23, 42, 0.08) !important;
-        border-radius: 20px;
-        padding: 28px;
-        box-shadow: 0 10px 30px 0 rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        margin-bottom: 22px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glass-card:hover {
-        border: 1px solid rgba(99, 102, 241, 0.25) !important;
-        box-shadow: 0 15px 35px 0 rgba(99, 102, 241, 0.06), 0 10px 30px 0 rgba(15, 23, 42, 0.06);
-        transform: translateY(-2px);
     }
     
     /* File Uploader Custom Styling Wrapper (Light Mode) */
@@ -107,8 +88,8 @@ st.markdown("""
         transition: all 0.3s ease !important;
     }
     [data-testid="stFileUploader"]:hover {
-        border-color: rgba(99, 102, 241, 0.6) !important;
-        background: rgba(99, 102, 241, 0.02) !important;
+        border-color: rgba(37, 99, 235, 0.6) !important;
+        background: rgba(37, 99, 235, 0.02) !important;
     }
     [data-testid="stFileUploader"] label {
         color: #0f172a !important;
@@ -124,6 +105,23 @@ st.markdown("""
         color: #475569 !important; /* Slate 600 */
         font-weight: 600 !important;
         font-size: 0.88rem !important;
+    }
+    
+    /* Style all input fields (Text areas and inputs) to have a clean, subtle light border */
+    .stTextArea textarea, .stTextInput input {
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        color: #1e293b !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.95rem !important;
+        padding: 12px !important;
+        transition: all 0.2s ease !important;
+    }
+    .stTextArea textarea:focus, .stTextInput input:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        outline: none !important;
     }
     
     /* Dynamic skill tags with vibrant styling (Light Mode) */
@@ -165,54 +163,79 @@ st.markdown("""
         transform: translateY(-2px) scale(1.02);
     }
     
-    /* Premium visual buttons with animated gradient slides */
-    div.stButton > button {
-        background: linear-gradient(135deg, #4f46e5, #2563eb, #7c3aed);
-        background-size: 200% auto;
-        color: white !important;
-        border: none;
-        padding: 12px 28px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        letter-spacing: 0.01em;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
-        width: 100%;
+    /* Unified custom button styling for ALL button containers in Streamlit */
+    div.stButton > button,
+    div.stDownloadButton > button,
+    div.stFormSubmitButton > button {
+        background-color: #2563eb !important; /* Premium simple solid blue */
+        color: #ffffff !important; /* Bright white text */
+        border: none !important;
+        padding: 10px 24px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 0.01em !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+        width: 100% !important;
+        text-align: center !important;
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
-    div.stButton > button:hover {
-        background-position: right center;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    
+    div.stButton > button:hover,
+    div.stDownloadButton > button:hover,
+    div.stFormSubmitButton > button:hover {
+        background-color: #1d4ed8 !important; /* Darker blue on hover */
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    div.stButton > button:active,
+    div.stDownloadButton > button:active,
+    div.stFormSubmitButton > button:active {
+        transform: translateY(0px) !important;
+    }
+    
+    /* Guarantee bright white text labels on all customized action buttons */
+    div.stButton > button p,
+    div.stDownloadButton > button p,
+    div.stFormSubmitButton > button p,
+    div.stButton > button span,
+    div.stDownloadButton > button span,
+    div.stFormSubmitButton > button span {
+        color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     /* High-end circular rating card design (Light Mode) */
     .metric-container {
-        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
-        border-radius: 24px;
-        padding: 32px 24px;
+        background: #ffffff !important;
+        border-radius: 20px;
+        padding: 28px 24px;
         border: 1px solid rgba(59, 130, 246, 0.15) !important;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.02) !important;
         text-align: center;
         max-width: 330px;
         margin: 15px auto;
         transition: all 0.3s ease;
     }
     .metric-container:hover {
-        border-color: rgba(59, 130, 246, 0.35) !important;
-        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.08), 0 10px 30px rgba(15, 23, 42, 0.05);
-        transform: translateY(-3px);
+        border-color: rgba(59, 130, 246, 0.3) !important;
+        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.04) !important;
+        transform: translateY(-2px);
     }
     .metric-title {
         color: #64748b !important; /* Muted slate */
-        margin-bottom: 10px;
-        font-size: 1.05rem;
+        margin-bottom: 8px;
+        font-size: 1.0rem;
         font-weight: 600;
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
     .metric-value {
-        font-size: 4.8rem !important;
+        font-size: 4.0rem !important; /* Slightly more compact & clean */
         font-weight: 800 !important;
         background: linear-gradient(to right, #1d4ed8, #2563eb, #3b82f6) !important;
         -webkit-background-clip: text !important;
@@ -221,45 +244,66 @@ st.markdown("""
         color: transparent !important;
         margin: 8px 0 !important;
         letter-spacing: -0.04em !important;
-        filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.15)) !important;
+        filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.12)) !important;
     }
     .metric-label {
-        color: #334155 !important;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        padding: 4px 8px;
-        border-radius: 8px;
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+        padding: 4px 8px !important;
+        border-radius: 8px !important;
     }
     
     /* 2. HIGH-CONTRAST SOLID LIGHT NAVIGATION TAB BAR */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px !important;
+        gap: 8px !important;
         background-color: #f1f5f9 !important; /* Clean light slate background */
-        padding: 8px !important;
-        border-radius: 14px !important;
-        border: 1px solid rgba(15, 23, 42, 0.06) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
-        margin-bottom: 15px;
+        padding: 6px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(15, 23, 42, 0.04) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01) !important;
+        margin-bottom: 20px;
     }
     .stTabs [data-baseweb="tab"] {
-        padding: 10px 24px !important;
-        border-radius: 10px !important;
+        padding: 8px 20px !important;
+        border-radius: 8px !important;
         font-weight: 700 !important;
-        font-size: 1.05rem !important;
+        font-size: 1.0rem !important;
         color: #475569 !important; /* Strong dark slate text for perfect contrast */
-        transition: all 0.25s ease-in-out !important;
+        transition: all 0.2s ease !important;
         font-family: 'Outfit', sans-serif !important;
         border-bottom: none !important;
     }
     .stTabs [data-baseweb="tab"]:hover {
         color: #0f172a !important;
-        background-color: rgba(15, 23, 42, 0.04) !important;
+        background-color: rgba(15, 23, 42, 0.03) !important;
     }
     .stTabs [aria-selected="true"] {
         background-color: #2563eb !important; /* Vibrant Indigo-Blue background for selected tab */
-        color: #ffffff !important; /* Bright White text */
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2) !important;
         border-bottom: none !important;
+    }
+    
+    /* Tabs font overrides for defensive contrast */
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] p {
+        color: #ffffff !important;
+    }
+    .stTabs [aria-selected="false"] span,
+    .stTabs [aria-selected="false"] p {
+        color: #475569 !important;
+    }
+    
+    /* Clean expander headers styling */
+    .streamlit-expanderHeader {
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        color: #0f172a !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+    }
+    .streamlit-expanderHeader:hover {
+        border-color: #cbd5e1 !important;
     }
 </style>
 """, unsafe_allow_html=True)
