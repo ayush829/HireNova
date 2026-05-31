@@ -254,215 +254,219 @@ st.markdown('<div class="subtitle-text">Transform your resume into a laser-focus
 col_input, col_results = st.columns([1, 1], gap="medium")
 
 with col_input:
-    st.markdown("### 📤 Upload & Analyze")
-    
-    # Resume File Uploader (Max 10MB limit)
-    resume_file = st.file_uploader(
-        "Upload Resume",
-        type=["pdf", "docx"],
-        help="Supported formats: PDF (.pdf) and Microsoft Word (.docx) - Max 10MB"
-    )
-    
-    # Enforce 10MB file size limit
-    if resume_file:
-        if resume_file.size > 10 * 1024 * 1024:
-            st.error("❌ The uploaded file exceeds the 10MB size limit. Please upload a smaller resume.")
-            resume_file = None
-    
-    # Job Description Text Area
-    jd_text = st.text_area(
-        "Paste Job Description",
-        height=250,
-        placeholder="Paste the full job posting text here to analyze keyword matches..."
-    )
-    
-    # Hidden parsing state
-    resume_parsed_text = ""
-    
-    if resume_file:
-        # Parse resume file
-        file_ext = resume_file.name.split(".")[-1].lower()
-        with st.spinner("Extracting text from resume..."):
-            if file_ext == "pdf":
-                resume_parsed_text = read_pdf(resume_file)
-            elif file_ext == "docx":
-                resume_parsed_text = read_docx(resume_file)
-                
-        if resume_parsed_text.startswith("Error"):
-            st.error(resume_parsed_text)
-            resume_parsed_text = ""
-        else:
-            st.success(f"Successfully parsed: {resume_file.name}")
-            # Optional preview
-            with st.expander("View Extracted Resume Text (Preview)"):
-                st.text_area("Extracted Content", resume_parsed_text[:2000] + "...", height=150, disabled=True)
-    
-    # Analyze Button
-    analyze_btn = st.button("Analyze Resume & JD")
-    
-with col_results:
-    st.markdown("### 📈 ATS Compatibility Analysis")
-    
-    # Set states in session_state to avoid losing variables on re-run
-    if 'analysis_run' not in st.session_state:
-        st.session_state.analysis_run = False
-        st.session_state.score = 0
-        st.session_state.matched = []
-        st.session_state.missing = []
-        st.session_state.resume_text_cache = ""
-        st.session_state.jd_text_cache = ""
-        st.session_state.filename_cache = ""
-        st.session_state.optimized_resume = ""
-        st.session_state.pdf_generated = False
+    with st.container(border=True):
+        st.markdown("### 📤 Upload & Analyze")
         
-    if analyze_btn:
-        if not resume_parsed_text:
-            st.warning("Please upload a valid PDF or Word resume first.")
-        elif not jd_text.strip():
-            st.warning("Please paste the job description to run comparisons.")
-        else:
-            # Save caches
-            st.session_state.resume_text_cache = resume_parsed_text
-            st.session_state.jd_text_cache = jd_text
-            st.session_state.filename_cache = resume_file.name
-            
-            # Extract skills from both text bodies
-            resume_skills = extract_skills(st.session_state.resume_text_cache)
-            jd_skills = extract_skills(st.session_state.jd_text_cache)
-            
-            # Compare skills
-            matched, missing = compare_skills(resume_skills, jd_skills)
-            
-            # ATS Score
-            score = ats_score(matched, len(jd_skills))
-            
-            # Save results to session state
-            st.session_state.score = score
-            st.session_state.matched = matched
-            st.session_state.missing = missing
-            st.session_state.analysis_run = True
-            
+        # Resume File Uploader (Max 10MB limit)
+        resume_file = st.file_uploader(
+            "Upload Resume",
+            type=["pdf", "docx"],
+            help="Supported formats: PDF (.pdf) and Microsoft Word (.docx) - Max 10MB"
+        )
+        
+        # Enforce 10MB file size limit
+        if resume_file:
+            if resume_file.size > 10 * 1024 * 1024:
+                st.error("❌ The uploaded file exceeds the 10MB size limit. Please upload a smaller resume.")
+                resume_file = None
+        
+        # Job Description Text Area
+        jd_text = st.text_area(
+            "Paste Job Description",
+            height=250,
+            placeholder="Paste the full job posting text here to analyze keyword matches..."
+        )
+        
+        # Hidden parsing state
+        resume_parsed_text = ""
+        
+        if resume_file:
+            # Parse resume file
+            file_ext = resume_file.name.split(".")[-1].lower()
+            with st.spinner("Extracting text from resume..."):
+                if file_ext == "pdf":
+                    resume_parsed_text = read_pdf(resume_file)
+                elif file_ext == "docx":
+                    resume_parsed_text = read_docx(resume_file)
+                    
+            if resume_parsed_text.startswith("Error"):
+                st.error(resume_parsed_text)
+                resume_parsed_text = ""
+            else:
+                st.success(f"Successfully parsed: {resume_file.name}")
+                # Optional preview
+                with st.expander("View Extracted Resume Text (Preview)"):
+                    st.text_area("Extracted Content", resume_parsed_text[:2000] + "...", height=150, disabled=True)
+        
+        # Analyze Button
+        st.markdown("<br/>", unsafe_allow_html=True)
+        analyze_btn = st.button("Analyze Resume & JD")
+        
+with col_results:
+    with st.container(border=True):
+        st.markdown("### 📈 ATS Compatibility Analysis")
+        
+        # Set states in session_state to avoid losing variables on re-run
+        if 'analysis_run' not in st.session_state:
+            st.session_state.analysis_run = False
+            st.session_state.score = 0
+            st.session_state.matched = []
+            st.session_state.missing = []
+            st.session_state.resume_text_cache = ""
+            st.session_state.jd_text_cache = ""
+            st.session_state.filename_cache = ""
             st.session_state.optimized_resume = ""
             st.session_state.pdf_generated = False
-    
-    # Display analysis results if available
-    if st.session_state.analysis_run:
-        score = st.session_state.score
-        
-        # Determine rating label & theme-agnostic colors
-        if score >= 80:
-            rating = "Excellent ATS Match! ready to apply."
-            text_color = "#10b981"
-        elif score >= 50:
-            rating = "Moderate Match. Tailoring recommended to pass the ATS."
-            text_color = "#f59e0b"
-        else:
-            rating = "Low Match. Highly recommended to inject missing skills."
-            text_color = "#ef4444"
             
-        st.markdown(f"""
-        <div class="metric-container">
-            <div class="metric-title">ATS Match Rating</div>
-            <div class="metric-value">{score}%</div>
-            <div class="metric-label" style="color: {text_color}; font-weight:600;">{rating}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<br/>", unsafe_allow_html=True)
-        
-        # Skill Breakdown
-        st.markdown("#### Key Skill Matching")
-        
-        # Matched terms
-        st.markdown(f"**✅ Matched Keywords ({len(st.session_state.matched)}):**")
-        if st.session_state.matched:
-            tags_html = "".join([f'<span class="skill-tag skill-matched">{skill}</span>' for skill in st.session_state.matched])
-            st.markdown(tags_html, unsafe_allow_html=True)
-        else:
-            st.markdown("*No matching keywords identified in your resume. Check your spelling or formatting.*")
-            
-        st.markdown("<br/>", unsafe_allow_html=True)
-        
-        # Missing terms
-        st.markdown(f"**⚠️ Missing Keywords ({len(st.session_state.missing)}):**")
-        if st.session_state.missing:
-            tags_html = "".join([f'<span class="skill-tag skill-missing">{skill}</span>' for skill in st.session_state.missing])
-            st.markdown(tags_html, unsafe_allow_html=True)
-        else:
-            st.markdown("*Congratulations! You have 100% skill keyword coverage for this job description.*")
-            
-        st.markdown("<hr style='border-color: rgba(148, 163, 184, 0.2);' />", unsafe_allow_html=True)
-        
-        # --- AI OPTIMIZER TRIGGER ---
-        st.markdown("### 🤖 Tailor & Optimize Resume with AI")
-        st.markdown("Incorporate missing keywords and optimize bullets using STAR formatting powered by Gemini 2.5 Flash.")
-        
-        # Check for API Key
-        if not effective_api_key:
-            st.warning("⚠️ Gemini API Key not configured. Please check the GEMINI_API_KEY in your .env file or Streamlit Cloud Secrets to enable AI optimization.")
-        
-        # Tailor button
-        tailor_btn = st.button("Generate Tailored Resume", disabled=not effective_api_key)
-        
-        if tailor_btn and effective_api_key:
-            with st.spinner("Gemini AI is tailoring your resume... This may take up to 20 seconds."):
-                optimized_text = optimize_resume(
-                    st.session_state.resume_text_cache, 
-                    st.session_state.jd_text_cache, 
-                    effective_api_key
-                )
+        if analyze_btn:
+            if not resume_parsed_text:
+                st.warning("Please upload a valid PDF or Word resume first.")
+            elif not jd_text.strip():
+                st.warning("Please paste the job description to run comparisons.")
+            else:
+                # Save caches
+                st.session_state.resume_text_cache = resume_parsed_text
+                st.session_state.jd_text_cache = jd_text
+                st.session_state.filename_cache = resume_file.name
                 
-                if optimized_text.startswith("Error"):
-                    st.error(optimized_text)
-                else:
-                    st.session_state.optimized_resume = optimized_text
-                    st.success("Successfully optimized resume! Preview below.")
-                    
-                    # Instantly trigger PDF compilation
-                    pdf_path = "generated/resume.pdf"
-                    with st.spinner("Generating styled PDF document..."):
-                        success = create_pdf(optimized_text, pdf_path)
-                        if success:
-                            st.session_state.pdf_generated = True
-                        else:
-                            st.error("Could not compile styled PDF. Using backup text output.")
-
-    else:
-        st.info("Upload your resume and paste the job description on the left, then click 'Analyze Resume & JD' to see details.")
+                # Extract skills from both text bodies
+                resume_skills = extract_skills(st.session_state.resume_text_cache)
+                jd_skills = extract_skills(st.session_state.jd_text_cache)
+                
+                # Compare skills
+                matched, missing = compare_skills(resume_skills, jd_skills)
+                
+                # ATS Score
+                score = ats_score(matched, len(jd_skills))
+                
+                # Save results to session state
+                st.session_state.score = score
+                st.session_state.matched = matched
+                st.session_state.missing = missing
+                st.session_state.analysis_run = True
+                
+                st.session_state.optimized_resume = ""
+                st.session_state.pdf_generated = False
         
+        # Display analysis results if available
+        if st.session_state.analysis_run:
+            score = st.session_state.score
+            
+            # Determine rating label & theme-agnostic colors
+            if score >= 80:
+                rating = "Excellent ATS Match! ready to apply."
+                text_color = "#10b981"
+            elif score >= 50:
+                rating = "Moderate Match. Tailoring recommended to pass the ATS."
+                text_color = "#f59e0b"
+            else:
+                rating = "Low Match. Highly recommended to inject missing skills."
+                text_color = "#ef4444"
+                
+            st.markdown(f"""
+            <div class="metric-container">
+                <div class="metric-title">ATS Match Rating</div>
+                <div class="metric-value">{score}%</div>
+                <div class="metric-label" style="color: {text_color}; font-weight:600;">{rating}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<br/>", unsafe_allow_html=True)
+            
+            # Skill Breakdown
+            st.markdown("#### Key Skill Matching")
+            
+            # Matched terms
+            st.markdown(f"**✅ Matched Keywords ({len(st.session_state.matched)}):**")
+            if st.session_state.matched:
+                tags_html = "".join([f'<span class="skill-tag skill-matched">{skill}</span>' for skill in st.session_state.matched])
+                st.markdown(tags_html, unsafe_allow_html=True)
+            else:
+                st.markdown("*No matching keywords identified in your resume. Check your spelling or formatting.*")
+                
+            st.markdown("<br/>", unsafe_allow_html=True)
+            
+            # Missing terms
+            st.markdown(f"**⚠️ Missing Keywords ({len(st.session_state.missing)}):**")
+            if st.session_state.missing:
+                tags_html = "".join([f'<span class="skill-tag skill-missing">{skill}</span>' for skill in st.session_state.missing])
+                st.markdown(tags_html, unsafe_allow_html=True)
+            else:
+                st.markdown("*Congratulations! You have 100% skill keyword coverage for this job description.*")
+        else:
+            st.info("Upload your resume and paste the job description on the left, then click 'Analyze Resume & JD' to see details.")
+            
+    # AI Optimizer Card (Separated for elegant structured layout)
+    if st.session_state.analysis_run:
+        st.markdown("<br/>", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("### 🤖 Tailor & Optimize Resume with AI")
+            st.markdown("Incorporate missing keywords and optimize bullets using STAR formatting powered by Gemini 2.5 Flash.")
+            
+            # Check for API Key
+            if not effective_api_key:
+                st.warning("⚠️ Gemini API Key not configured. Please check the GEMINI_API_KEY in your .env file or Streamlit Cloud Secrets to enable AI optimization.")
+            
+            # Tailor button
+            tailor_btn = st.button("Generate Tailored Resume", disabled=not effective_api_key)
+            
+            if tailor_btn and effective_api_key:
+                with st.spinner("Gemini AI is tailoring your resume... This may take up to 20 seconds."):
+                    optimized_text = optimize_resume(
+                        st.session_state.resume_text_cache, 
+                        st.session_state.jd_text_cache, 
+                        effective_api_key
+                    )
+                    
+                    if optimized_text.startswith("Error"):
+                        st.error(optimized_text)
+                    else:
+                        st.session_state.optimized_resume = optimized_text
+                        st.success("Successfully optimized resume! Preview below.")
+                        
+                        # Instantly trigger PDF compilation
+                        pdf_path = "generated/resume.pdf"
+                        with st.spinner("Generating styled PDF document..."):
+                            success = create_pdf(optimized_text, pdf_path)
+                            if success:
+                                st.session_state.pdf_generated = True
+                            else:
+                                st.error("Could not compile styled PDF. Using backup text output.")
+
 # Show optimized resume preview and download button in a full-width container below
 if st.session_state.optimized_resume:
-    st.markdown("<hr style='margin-top: 30px; border-color: rgba(148, 163, 184, 0.2);' />", unsafe_allow_html=True)
-    st.markdown("### 📝 Tailored Resume Preview & Download")
-    
-    col_preview, col_dl = st.columns([2, 1])
-    
-    with col_preview:
-        with st.container():
-            st.markdown("""
-            <div style="background-color: var(--secondary-background-color); border: 1px solid rgba(148, 163, 184, 0.2); padding: 25px; border-radius: 16px; max-height: 500px; overflow-y: scroll; box-shadow: 0 10px 25px rgba(0,0,0,0.03);">
-                <style>
-                    /* Style text inside preview sheet to always match current theme colors */
-                    div[data-testid="stMarkdownContainer"] {
-                        color: var(--text-color) !important;
-                    }
-                </style>
-            """, unsafe_allow_html=True)
-            st.markdown(st.session_state.optimized_resume)
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-    with col_dl:
-        st.markdown("#### Get Your Tailored Resume")
-        st.markdown("Your optimized resume is ready for download as a professional, ATS-compliant PDF with modern design and spacing.")
+    st.markdown("<br/>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("### 📝 Tailored Resume Preview & Download")
         
-        if st.session_state.pdf_generated and os.path.exists("generated/resume.pdf"):
-            with open("generated/resume.pdf", "rb") as file:
-                st.download_button(
-                    label="📥 Download Tailored Resume PDF",
-                    data=file,
-                    file_name=f"Tailored_Resume_{st.session_state.filename_cache.replace('.pdf', '').replace('.docx', '')}.pdf",
-                    mime="application/pdf"
-                )
-            st.info("💡 Open the downloaded PDF in your preferred viewer. It has been pre-formatted with professional standard margins (0.5 inch) and typography.")
-        else:
-            st.error("Error generating PDF file. You can copy the markdown text preview directly.")
+        col_preview, col_dl = st.columns([2, 1])
+        
+        with col_preview:
+            with st.container():
+                st.markdown("""
+                <div style="background-color: var(--secondary-background-color); border: 1px solid rgba(148, 163, 184, 0.2); padding: 25px; border-radius: 16px; max-height: 500px; overflow-y: scroll; box-shadow: 0 10px 25px rgba(0,0,0,0.03);">
+                    <style>
+                        /* Style text inside preview sheet to always match current theme colors */
+                        div[data-testid="stMarkdownContainer"] {
+                            color: var(--text-color) !important;
+                        }
+                    </style>
+                """, unsafe_allow_html=True)
+                st.markdown(st.session_state.optimized_resume)
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+        with col_dl:
+            st.markdown("#### Get Your Tailored Resume")
+            st.markdown("Your optimized resume is ready for download as a professional, ATS-compliant PDF with modern design and spacing.")
+            
+            if st.session_state.pdf_generated and os.path.exists("generated/resume.pdf"):
+                with open("generated/resume.pdf", "rb") as file:
+                    st.download_button(
+                        label="📥 Download Tailored Resume PDF",
+                        data=file,
+                        file_name=f"Tailored_Resume_{st.session_state.filename_cache.replace('.pdf', '').replace('.docx', '')}.pdf",
+                        mime="application/pdf"
+                    )
+                st.info("💡 Open the downloaded PDF in your preferred viewer. It has been pre-formatted with professional standard margins (0.5 inch) and typography.")
+            else:
+                st.error("Error generating PDF file. You can copy the markdown text preview directly.")
